@@ -1,6 +1,6 @@
 
 Name: xrootd-tpc
-Version: 0.4.0
+Version: 0.4.1
 Release: 1%{?dist}
 Summary: HTTP Third Party Copy plugin for XRootD
 
@@ -43,6 +43,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libXrdHttpTPC-4.so
 
 %changelog
+* Sat Jul 28 2018 Brian Bockelman <bbockelm@cse.unl.edu> - 0.4.1-1
+- Backport fixes for transfers with streams=0.
+
 * Tue Mar 27 2018 Brian Bockelman <bbockelm@cse.unl.edu> - 0.4.0-1
 - Add timeout for slow transfers.
 

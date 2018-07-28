@@ -303,7 +303,11 @@ int TPCHandler::RunCurlWithUpdates(CURL *curl, XrdHttpExtReq &req, State &state,
         curl_easy_cleanup(curl);
 
         curl_multi_cleanup(multi_handle);
-        return req.SendSimpleResp(500, nullptr, nullptr, msg, 0);
+        if ((retval = req.ChunkResp(msg, 0))) {
+            return retval;
+        }
+        return req.ChunkResp(NULL, 0);
+
     }
 
     // Harvest any messages, looking for CURLMSG_DONE.
@@ -325,7 +329,11 @@ int TPCHandler::RunCurlWithUpdates(CURL *curl, XrdHttpExtReq &req, State &state,
         curl_multi_cleanup(multi_handle);
         char msg[] = "Internal state error in libcurl";
         m_log.Emsg(log_prefix, msg);
-        return req.SendSimpleResp(500, nullptr, nullptr, msg, 0);
+
+        if ((retval = req.ChunkResp(msg, 0))) {
+            return retval;
+        }
+        return req.ChunkResp(NULL, 0);
     }
     curl_multi_cleanup(multi_handle);
 
@@ -447,11 +455,12 @@ int TPCHandler::ProcessPullReq(const std::string &resource, XrdHttpExtReq &req) 
                 stream_req = std::stol(streams_header->second);
             } catch (...) { // Handled below
             }
-            if (stream_req < 1 || stream_req > 100) {
+            if (stream_req < 0 || stream_req > 100) {
                 char msg[] = "Invalid request for number of streams";
+                m_log.Emsg("ProcessPullReq", msg);
                 return req.SendSimpleResp(500, nullptr, nullptr, msg, 0);
             }
-            streams = stream_req;
+            streams = streams == 0 ? 1 : stream_req;
         }
     }
 

@@ -130,7 +130,7 @@ int State::Header(const std::string &header) {
             return 0;
         }
         m_recv_status_line = true;
-    } else if (header.size() == 0 || header == "\n") {
+    } else if (header.size() == 0 || header == "\n" || header == "\r\n") {
         m_recv_all_headers = true;
     }
     else if (header != "\r\n") {
